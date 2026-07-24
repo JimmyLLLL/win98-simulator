@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jimmyllll.github.io/win98-simulator/sitemap.xml
+Sitemap: https://jimmywithfiona.com/win98-simulator/sitemap.xml
