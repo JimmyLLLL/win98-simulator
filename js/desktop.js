@@ -36,6 +36,7 @@
     ICONS.forEach((icon, i) => {
         const el = document.createElement("div");
         el.className = "desktop-icon";
+        el.dataset.id = icon.id;
         el.style.left = "20px";
         el.style.top = (20 + i * 80) + "px";
         el.innerHTML = `<div class="desktop-icon-icon">${icon.icon}</div><div class="desktop-icon-label">${icon.label}</div>`;
