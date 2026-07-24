@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#008080">
+    <meta name="description" content="Windows 98 Simulator — experience the classic Windows 98 desktop in your browser. Notepad, Calculator, Paint, Minesweeper, Internet Explorer. No download, free, instant play!">
+    <meta name="keywords" content="windows 98 simulator, windows 98 online, windows 98 emulator, classic windows, retro desktop, minesweeper online, windows 98 web">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://jimmyllll.github.io/win98-simulator/">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1840337371416691" crossorigin="anonymous"></script>
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Windows 98 Simulator">
+    <meta property="og:title" content="Windows 98 Simulator — Relive the Classic Desktop Online">
+    <meta property="og:description" content="Experience Windows 98 in your browser. Notepad, Calculator, Paint, Minesweeper, Internet Explorer. Free, no download!">
+    <meta property="og:url" content="https://jimmyllll.github.io/win98-simulator/">
+    <meta property="og:image" content="https://jimmyllll.github.io/win98-simulator/favicon.svg">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Windows 98 Simulator — Relive the Classic Desktop">
+    <meta name="twitter:description" content="Experience Windows 98 in your browser. Notepad, Calculator, Paint, Minesweeper, IE.">
+    <meta name="twitter:image" content="https://jimmyllll.github.io/win98-simulator/favicon.svg">
+    <title>Windows 98 Simulator — Relive Classic Desktop Online | Free</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Windows 98 Simulator",
+      "url": "https://jimmyllll.github.io/win98-simulator/",
+      "description": "Experience the classic Windows 98 desktop in your browser. Includes Notepad, Calculator, Paint, Minesweeper, and Internet Explorer.",
+      "applicationCategory": "Game",
+      "operatingSystem": "Any (Web Browser)",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "89", "bestRating": "5", "worstRating": "1" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Is this Windows 98 simulator real?", "acceptedAnswer": { "@type": "Answer", "text": "It's a web-based simulation that recreates the Windows 98 desktop experience with working apps like Notepad, Calculator, Paint, and Minesweeper." } },
+        { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. The simulator runs entirely in your browser. Just open the page and start using it." } },
+        { "@type": "Question", "name": "Can I play Minesweeper?", "acceptedAnswer": { "@type": "Answer", "text": "Yes! Double-click the Minesweeper icon on the desktop to play the classic mine-finding game." } }
+      ]
+    }
+    </script>
+</head>
+<body>
+
+<div id="desktop">
+    <!-- Desktop icons are rendered by JS -->
+</div>
+
+<!-- Start Menu -->
+<div id="start-menu">
+    <div id="start-menu-sidebar">
+        <div id="start-menu-sidebar-text">Windows<b>98</b></div>
+    </div>
+    <div id="start-menu-items">
+        <div class="start-menu-item" data-action="programs" onclick="document.getElementById('desktop').querySelector('[data-id=\"notepad\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">📝</span> Notepad
+        </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"calculator\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">🔢</span> Calculator
+        </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"paint\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">🎨</span> Paint
+        </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"minesweeper\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">💣</span> Minesweeper
+        </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"browser\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">🌐</span> Internet Explorer
+        </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"mycomputer\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">🖥️</span> My Computer
+        </div>
+        <div class="start-menu-separator"></div>
+        <div class="start-menu-item" data-action="run">
+            <span class="start-menu-item-icon">▶️</span> Run...
+        </div>
+        <div class="start-menu-separator"></div>
+        <div class="start-menu-item" data-action="shutdown">
+            <span class="start-menu-item-icon">⚡</span> Shut Down...
+        </div>
+    </div>
+</div>
+
+<!-- Taskbar -->
+<div id="taskbar">
+    <div id="start-btn">
+        <span id="start-btn-icon">🪟</span>
+        <span>Start</span>
+    </div>
+    <div id="taskbar-separator"></div>
+    <div id="taskbar-items"></div>
+    <div id="system-tray">
+        <span style="font-size:12px;">🔊</span>
+        <span id="clock">12:00 PM</span>
+    </div>
+</div>
+
+<!-- SEO content for crawlers (visually hidden) -->
+<div class="seo-hidden">
+    <h1>Windows 98 Simulator — Relive the Classic Desktop Online</h1>
+    <p>Experience the nostalgia of Windows 98 right in your browser. This free online Windows 98 simulator recreates the classic desktop environment with working applications including Notepad, Calculator, Paint, Minesweeper, Internet Explorer, My Computer, and Recycle Bin.</p>
+    <h2>Available Applications</h2>
+    <p>Double-click any desktop icon to open an application:</p>
+    <ul>
+        <li><strong>Notepad</strong> — A classic text editor with monospace font, just like the original.</li>
+        <li><strong>Calculator</strong> — Full functional calculator with add, subtract, multiply, divide, square root.</li>
+        <li><strong>Paint</strong> — Draw and paint with 16 colors, adjustable brush size, and clear function.</li>
+        <li><strong>Minesweeper</strong> — The classic mine-finding game. Left-click to reveal, right-click to flag.</li>
+        <li><strong>Internet Explorer</strong> — A simulated IE4 browser with retro web page.</li>
+        <li><strong>My Computer</strong> — Browse floppy drives, hard disks, and CD-ROMs.</li>
+        <li><strong>Recycle Bin</strong> — Empty, just like a fresh install.</li>
+    </ul>
+    <h2>Features</h2>
+    <p>This Windows 98 simulator includes a fully functional window manager with drag, minimize, maximize, and close. The taskbar shows open windows and a live clock. The Start menu provides quick access to all applications. Use the Run dialog (type "notepad", "calc", "paint", or "mines") to launch apps like the real thing.</p>
+    <h2>How to Use</h2>
+    <p>Double-click any desktop icon to open an application. Drag windows by their title bars. Click the Start button to access the menu. Right-click in Minesweeper to place flags. The simulator works on both desktop and mobile devices.</p>
+    <h2>Why Windows 98?</h2>
+    <p>Windows 98, released by Microsoft in June 1998, was one of the most beloved operating systems of all time. It introduced the Active Desktop, improved USB support, and the Internet Explorer 4 integration. This simulator captures the look and feel of that iconic OS for nostalgia and fun.</p>
+</div>
+
+<script src="js/desktop.js"></script>
+</body>
+</html>

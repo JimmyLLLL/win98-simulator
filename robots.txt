@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jimmyllll.github.io/win98-simulator/sitemap.xml
