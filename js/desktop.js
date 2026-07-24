@@ -25,7 +25,7 @@
     const ICONS = [
         { id: "mycomputer", icon: "🖥️", label: "My Computer", action: () => openWindow("mycomputer", "My Computer", "🖥️", renderMyComputer) },
         { id: "notepad", icon: "📝", label: "Notepad", action: () => openWindow("notepad", "Untitled - Notepad", "📝", renderNotepad) },
-        { id: "calculator", icon: "🔢", label: "Calculator", "🔢", action: () => openWindow("calculator", "Calculator", "🔢", renderCalculator) },
+        { id: "calculator", icon: "🔢", label: "Calculator", action: () => openWindow("calculator", "Calculator", "🔢", renderCalculator) },
         { id: "paint", icon: "🎨", label: "Paint", action: () => openWindow("paint", "untitled - Paint", "🎨", renderPaint) },
         { id: "minesweeper", icon: "💣", label: "Minesweeper", action: () => openWindow("minesweeper", "Minesweeper", "💣", renderMinesweeper) },
         { id: "browser", icon: "🌐", label: "Internet Explorer", action: () => openWindow("browser", "Internet Explorer", "🌐", renderBrowser) },
