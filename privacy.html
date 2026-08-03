@@ -46,5 +46,35 @@
     <p style="font-size:13px;">Windows 98 and Microsoft are trademarks of Microsoft Corporation. This is a fan project, not affiliated with Microsoft.</p>
     <a href="index.html" style="display:inline-block;background:#c0c0c0;border:2px outset #fff;padding:4px 16px;text-decoration:none;color:black;font-size:12px;margin-top:1rem;">← Back</a>
 </div>
+<!-- I18N-FULL -->
+<script>
+(function(){
+var lang=(navigator.language||navigator.userLanguage||'en').toLowerCase();
+if(!lang.startsWith('zh'))return;
+var ZH={"Privacy Policy":"隐私政策","Last updated: July 24, 2026":"最后更新：2026年7月24日","Windows 98 Simulator runs entirely in your browser. No personal data is collected.":"Windows 98 模拟器完全在浏览器中运行。不收集个人数据。","1. Data":"1. 数据","All app data (text, drawings, game state) exists only in your browser memory. Nothing is sent to any server.":"所有应用数据（文本、绘图、游戏状态）仅存在于浏览器内存中。不会向任何服务器发送任何内容。","2. Third-Party":"2. 第三方","GitHub Pages — hosting":"GitHub Pages — 托管","Google AdSense — may show ads":"Google AdSense — 可能显示广告","3. Advertising":"3. 广告","Google AdSense may use cookies. Manage at":"Google AdSense 可能使用 Cookie。管理地址：","Google Ad Settings":"Google 广告设置","4. Trademark":"4. 商标","Windows 98 and Microsoft are trademarks of Microsoft Corporation. This is a fan project, not affiliated with Microsoft.":"Windows 98 和 Microsoft 是 Microsoft Corporation 的商标。这是一个粉丝项目，与 Microsoft 无关。","← Back":"← 返回"};
+function walk(node){
+if(node.nodeType===3){
+var t=node.textContent,k=t.trim();
+if(k&&ZH[k]){node.textContent=t.replace(k,ZH[k])}
+}else if(node.nodeType===1&&node.tagName!=='SCRIPT'&&node.tagName!=='STYLE'&&node.tagName!=='NOSCRIPT'){
+if(node.childNodes.length>1){
+var full=node.textContent.trim();
+if(ZH[full]){node.textContent=ZH[full];return}
+}
+for(var i=0;i<node.childNodes.length;i++){walk(node.childNodes[i])}
+}
+}
+walk(document.body);
+document.documentElement.lang='zh-CN';
+var mo=new MutationObserver(function(muts){
+muts.forEach(function(m){
+if(m.type==='childList'){m.addedNodes.forEach(function(n){walk(n)})}
+else if(m.type==='characterData'){walk(m.target)}
+});
+});
+mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+})();
+</script>
+<!-- /I18N-FULL -->
 </body>
 </html>

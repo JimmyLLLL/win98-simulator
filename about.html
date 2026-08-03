@@ -50,5 +50,35 @@
     <p style="font-size:13px;">This is a fan-made tribute for nostalgia and educational purposes. Windows 98 is a trademark of Microsoft Corporation. This project is not affiliated with or endorsed by Microsoft.</p>
     <a href="index.html" style="display:inline-block;background:#c0c0c0;border:2px outset #fff;padding:4px 16px;text-decoration:none;color:black;font-size:12px;margin-top:1rem;">← Back to Desktop</a>
 </div>
+<!-- I18N-FULL -->
+<script>
+(function(){
+var lang=(navigator.language||navigator.userLanguage||'en').toLowerCase();
+if(!lang.startsWith('zh'))return;
+var ZH={"About Windows 98 Simulator":"关于 Windows 98 模拟器","Windows 98 Simulator is a free web-based recreation of the classic Windows 98 desktop experience. Built with HTML, CSS, and JavaScript, it runs entirely in your browser — no downloads, no plugins, no installation required.":"Windows 98 模拟器是一款免费的网页版经典 Windows 98 桌面体验重现。使用 HTML、CSS 和 JavaScript 构建，完全在浏览器中运行 — 无需下载、无需插件、无需安装。","What's Inside":"包含内容","Notepad — text editor":"Notepad — 文本编辑器","Calculator — full arithmetic":"计算器 — 完整算术运算","Paint — 16-color drawing canvas":"Paint — 16色绘图画布","Minesweeper — classic 9×9 grid":"扫雷 — 经典9×9网格","Internet Explorer — simulated retro browser":"Internet Explorer — 模拟复古浏览器","My Computer — file explorer":"我的电脑 — 文件资源管理器","Window manager — drag, minimize, maximize, close":"窗口管理器 — 拖拽、最小化、最大化、关闭","Start menu + taskbar + live clock":"开始菜单 + 任务栏 + 实时时钟","Disclaimer":"免责声明","This is a fan-made tribute for nostalgia and educational purposes. Windows 98 is a trademark of Microsoft Corporation. This project is not affiliated with or endorsed by Microsoft.":"这是一款出于怀旧和教育目的的粉丝致敬作品。Windows 98 是 Microsoft Corporation 的商标。本项目与 Microsoft 无关，也未获得其认可。","← Back to Desktop":"← 返回桌面"};
+function walk(node){
+if(node.nodeType===3){
+var t=node.textContent,k=t.trim();
+if(k&&ZH[k]){node.textContent=t.replace(k,ZH[k])}
+}else if(node.nodeType===1&&node.tagName!=='SCRIPT'&&node.tagName!=='STYLE'&&node.tagName!=='NOSCRIPT'){
+if(node.childNodes.length>1){
+var full=node.textContent.trim();
+if(ZH[full]){node.textContent=ZH[full];return}
+}
+for(var i=0;i<node.childNodes.length;i++){walk(node.childNodes[i])}
+}
+}
+walk(document.body);
+document.documentElement.lang='zh-CN';
+var mo=new MutationObserver(function(muts){
+muts.forEach(function(m){
+if(m.type==='childList'){m.addedNodes.forEach(function(n){walk(n)})}
+else if(m.type==='characterData'){walk(m.target)}
+});
+});
+mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+})();
+</script>
+<!-- /I18N-FULL -->
 </body>
 </html>
