@@ -124,8 +124,23 @@ document.querySelectorAll(".desktop-icon").forEach(d => d.classList.remove("sele
 el.classList.add("selected");
 });
 el.addEventListener("dblclick", () => {
-el.classList.remove("selected");
-icon.action();
+    el.classList.remove("selected");
+    icon.action();
+});
+// Touch: open on double-tap (dblclick is unreliable on touch)
+let lastTap = 0;
+el.addEventListener("touchend", (e) => {
+    const now = Date.now();
+    if (now - lastTap < 350) {
+        e.preventDefault();
+        el.classList.remove("selected");
+        icon.action();
+        lastTap = 0;
+    } else {
+        lastTap = now;
+        document.querySelectorAll(".desktop-icon").forEach(d => d.classList.remove("selected"));
+        el.classList.add("selected");
+    }
 });
 desktop.appendChild(el);
 });
@@ -262,6 +277,7 @@ win.style.top = (30 + Math.random() * 50) + "px";
     openWindows[id] = { winId, el: win, title, icon, taskbarItem: null };
     const contentEl = win.querySelector(".window-content");
     contentRenderer(contentEl, winId);
+    clampWindowToViewport(win);
     win.querySelector(".window-btn.close").addEventListener("click", () => closeWindow(id));
     win.querySelectorAll(".window-btn")[0].addEventListener("click", () => minimizeWindow(id));
     win.querySelectorAll(".window-btn")[1].addEventListener("click", () => toggleMaximize(id));
@@ -272,6 +288,35 @@ win.style.top = (30 + Math.random() * 50) + "px";
     focusWindow(id);
     SFX.playOpen();
 }
+function clampWindowToViewport(win) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight - 28; // minus taskbar
+    const w = parseInt(win.style.width) || win.offsetWidth;
+    const h = parseInt(win.style.height) || win.offsetHeight;
+    if (w > vw) win.style.width = vw + "px";
+    if (h > vh) win.style.height = vh + "px";
+    const cw = parseInt(win.style.width) || win.offsetWidth;
+    const ch = parseInt(win.style.height) || win.offsetHeight;
+    let l = parseInt(win.style.left) || 0;
+    let t = parseInt(win.style.top) || 0;
+    if (l < 0) l = 0;
+    if (t < 0) t = 0;
+    if (l + cw > vw) l = Math.max(0, vw - cw);
+    if (t + ch > vh) t = Math.max(0, vh - ch);
+    win.style.left = l + "px";
+    win.style.top = t + "px";
+}
+window.addEventListener("resize", () => {
+    for (const id in openWindows) {
+        const w = openWindows[id].el;
+        if (openWindows[id].maximized) {
+            w.style.width = "100%";
+            w.style.height = (window.innerHeight - 28) + "px";
+        } else {
+            clampWindowToViewport(w);
+        }
+    }
+});
 function makeResizable(win) {
     const handle = win.querySelector(".window-resizer");
     if (!handle) return;
@@ -1098,7 +1143,7 @@ setTimeout(() => inp.focus(), 0);
 
 function renderSolitaire(el) {
 el.style.background = "#008000";
-el.style.overflow = "hidden";
+el.style.overflow = "auto";
 el.parentElement.style.width = "640px";
 el.parentElement.style.height = "460px";
 const SUITS = ["\u2660","\u2665","\u2666","\u2663"];
