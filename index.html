@@ -80,6 +80,18 @@ gtag('config','G-XXXXXXXXXX');
 </head>
 <body>
 
+<!-- Boot screen (faded out by desktop.js) -->
+<div id="boot-screen">
+    <div class="boot-logo">
+        <div class="boot-flag"><span></span><span></span><span></span><span></span></div>
+        <div class="boot-text">
+            <div class="bt-ms">Microsoft</div>
+            <div class="bt-win">Windows<span class="bt-98">98</span></div>
+        </div>
+    </div>
+    <div class="boot-loading">Starting Windows 98...</div>
+</div>
+
 <div id="desktop">
     <!-- Desktop icons are rendered by JS -->
 </div>
@@ -102,8 +114,14 @@ gtag('config','G-XXXXXXXXXX');
         <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"minesweeper\"]').dispatchEvent(new MouseEvent('dblclick'))">
             <span class="start-menu-item-icon">💣</span> Minesweeper
         </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"solitaire\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">🃏</span> Solitaire
+        </div>
         <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"browser\"]').dispatchEvent(new MouseEvent('dblclick'))">
             <span class="start-menu-item-icon">🌐</span> Internet Explorer
+        </div>
+        <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"msdos\"]').dispatchEvent(new MouseEvent('dblclick'))">
+            <span class="start-menu-item-icon">⬛</span> MS-DOS Prompt
         </div>
         <div class="start-menu-item" onclick="document.getElementById('desktop').querySelector('[data-id=\"mycomputer\"]').dispatchEvent(new MouseEvent('dblclick'))">
             <span class="start-menu-item-icon">🖥️</span> My Computer
@@ -147,7 +165,9 @@ gtag('config','G-XXXXXXXXXX');
         <li><strong>Calculator</strong> — Full functional calculator with add, subtract, multiply, divide, square root.</li>
         <li><strong>Paint</strong> — Draw and paint with 16 colors, adjustable brush size, and clear function.</li>
         <li><strong>Minesweeper</strong> — The classic mine-finding game. Left-click to reveal, right-click to flag.</li>
+        <li><strong>Solitaire</strong> — Klondike solitaire. Draw cards, build foundations, win the game.</li>
         <li><strong>Internet Explorer</strong> — A simulated IE4 browser with retro web page.</li>
+        <li><strong>MS-DOS Prompt</strong> — A working command prompt with dir, cd, echo, tree and more.</li>
         <li><strong>My Computer</strong> — Browse floppy drives, hard disks, and CD-ROMs.</li>
         <li><strong>Recycle Bin</strong> — Empty, just like a fresh install.</li>
     </ul>
