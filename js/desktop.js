@@ -17,6 +17,94 @@ document.getElementById("clock").textContent = `${h12}:${m} ${ampm}`;
 updateClock();
 setInterval(updateClock, 1000);
 
+// Double-click clock -> Date/Time Properties
+(function () {
+    const clk = document.getElementById("clock");
+    if (!clk) return;
+    clk.style.cursor = "pointer";
+    clk.title = "Double-click for date/time properties";
+    clk.addEventListener("dblclick", (e) => {
+        e.stopPropagation();
+        openDateTimeProperties();
+    });
+})();
+function openDateTimeProperties() {
+    openWindow("datetime", "Date/Time Properties", "🕐", (el) => {
+        const now = new Date();
+        const curYear = now.getFullYear();
+        const curMonth = now.getMonth();
+        el.innerHTML = `
+        <div style="padding:8px;display:flex;gap:10px;">
+            <div>
+                <div class="dtp-cal" id="dtp-cal"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:120px;">
+                <div style="font-weight:bold;margin-bottom:2px;">Date:</div>
+                <div style="display:flex;gap:4px;align-items:center;">
+                    <select class="dtp-month" style="font-family:inherit;font-size:11px;"></select>
+                    <input type="number" class="dtp-year" style="width:56px;font-family:inherit;font-size:11px;" min="1980" max="2099">
+                </div>
+                <div style="font-weight:bold;margin-top:6px;">Time:</div>
+                <input type="text" class="dtp-time" style="width:110px;font-family:'Courier New',monospace;font-size:13px;text-align:center;" readonly>
+                <div style="flex:1;"></div>
+                <div style="text-align:right;">
+                    <button class="btn-98" style="margin-right:4px;" id="dtp-ok">OK</button>
+                    <button class="btn-98" onclick="this.closest('.window').querySelector('.window-btn.close').click()">Cancel</button>
+                </div>
+            </div>
+        </div>`;
+        el.parentElement.style.width = "340px";
+        el.parentElement.style.height = "240px";
+        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const monthSel = el.querySelector(".dtp-month");
+        monthNames.forEach((n, i) => {
+            const o = document.createElement("option");
+            o.value = i; o.textContent = n;
+            if (i === curMonth) o.selected = true;
+            monthSel.appendChild(o);
+        });
+        const yearInp = el.querySelector(".dtp-year");
+        yearInp.value = curYear;
+        const cal = el.querySelector("#dtp-cal");
+        const timeInp = el.querySelector(".dtp-time");
+        function renderCal() {
+            const m = parseInt(monthSel.value);
+            const y = parseInt(yearInp.value);
+            const first = new Date(y, m, 1).getDay();
+            const days = new Date(y, m + 1, 0).getDate();
+            const today = new Date();
+            const isCurMonth = today.getMonth() === m && today.getFullYear() === y;
+            let html = '<div class="dtp-dow">S M T W T F S</div><div class="dtp-grid">';
+            for (let i = 0; i < first; i++) html += '<span></span>';
+            for (let d = 1; d <= days; d++) {
+                const cls = (isCurMonth && d === today.getDate()) ? " today" : "";
+                html += `<span class="dtp-day${cls}">${d}</span>`;
+            }
+            html += "</div>";
+            cal.innerHTML = html;
+        }
+        renderCal();
+        monthSel.addEventListener("change", renderCal);
+        yearInp.addEventListener("change", renderCal);
+        function tickTime() {
+            const d = new Date();
+            const h = d.getHours(), mi = d.getMinutes().toString().padStart(2, "0");
+            const s = d.getSeconds().toString().padStart(2, "0");
+            const ap = h >= 12 ? "PM" : "AM";
+            const h12 = h % 12 || 12;
+            timeInp.value = `${h12}:${mi}:${s} ${ap}`;
+        }
+        tickTime();
+        const ti = setInterval(tickTime, 1000);
+        el.querySelector("#dtp-ok").addEventListener("click", () => {
+            clearInterval(ti);
+            el.querySelector(".window-btn.close").click();
+        });
+        const origClose = el.closest(".window").querySelector(".window-btn.close");
+        origClose.addEventListener("click", () => clearInterval(ti), { once: true });
+    });
+}
+
 // ---------- Sound module (Web Audio synthesis, no external files) ----------
 const SFX = (function () {
     let ctx = null;
@@ -100,6 +188,113 @@ document.addEventListener("mousedown", function () {
     const ref = document.getElementById("clock");
     if (ref) tray.insertBefore(vol, ref); else tray.appendChild(vol);
 })();
+
+// ---------- Screensaver (starfield, idle-triggered) ----------
+let screensaver = null;
+let idleTimer = null;
+const IDLE_MS = 90000;
+function resetIdle() {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (screensaver) return;
+    idleTimer = setTimeout(startScreensaver, IDLE_MS);
+}
+function startScreensaver() {
+    if (screensaver) return;
+    if (document.getElementById("boot-screen")) return;
+    const overlay = document.createElement("div");
+    overlay.id = "screensaver";
+    overlay.innerHTML = '<canvas id="ss-canvas"></canvas><div class="ss-hint">Move mouse or press any key to return</div>';
+    document.body.appendChild(overlay);
+    screensaver = overlay;
+    const canvas = overlay.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+    let w, h, stars;
+    function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+    function makeStars() {
+        stars = [];
+        for (let i = 0; i < 260; i++) {
+            stars.push({
+                x: (Math.random() - 0.5) * w,
+                y: (Math.random() - 0.5) * h,
+                z: Math.random() * w,
+                sz: Math.random() * 1.6 + 0.4
+            });
+        }
+    }
+    makeStars();
+    let raf;
+    const cx = w / 2, cy = h / 2;
+    function frame() {
+        ctx.fillStyle = "rgba(0,0,8,0.35)";
+        ctx.fillRect(0, 0, w, h);
+        const cx2 = w / 2, cy2 = h / 2;
+        for (const s of stars) {
+            s.z -= 6;
+            if (s.z <= 0) { s.z = w; s.x = (Math.random() - 0.5) * w; s.y = (Math.random() - 0.5) * h; }
+            const k = 160 / s.z;
+            const px = s.x * k + cx2;
+            const py = s.y * k + cy2;
+            if (px < 0 || px >= w || py < 0 || py >= h) continue;
+            const sz = s.sz * (1 - s.z / w) * 2.2;
+            ctx.fillStyle = "rgba(200,220,255," + Math.min(1, (1 - s.z / w) * 1.4) + ")";
+            ctx.fillRect(px, py, sz, sz);
+        }
+        raf = requestAnimationFrame(frame);
+    }
+    frame();
+    screensaver._stop = function () {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("resize", resize);
+        overlay.remove();
+        screensaver = null;
+        resetIdle();
+    };
+}
+function stopScreensaver() {
+    if (screensaver) { screensaver._stop(); SFX.playClick(); }
+}
+["mousemove", "mousedown", "keydown", "touchstart", "wheel"].forEach(ev => {
+    document.addEventListener(ev, () => { if (screensaver) stopScreensaver(); resetIdle(); }, { passive: true });
+});
+resetIdle();
+
+// ---------- BSOD easter egg (Ctrl+Alt+Del) ----------
+function showBSOD() {
+    if (document.getElementById("bsod")) return;
+    const b = document.createElement("div");
+    b.id = "bsod";
+    b.innerHTML = `
+    <div class="bsod-body">
+        <p class="bsod-title">Windows</p>
+        <p>A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) +<br>00010E36. The current application will be terminated.</p>
+        <p>* Press any key to terminate the current application.<br>* Press CTRL+ALT+DEL again to restart your computer. You will<br>&nbsp;&nbsp;lose any unsaved information in all applications.</p>
+        <p class="bsod-continue">Press any key to continue _</p>
+    </div>`;
+    document.body.appendChild(b);
+    SFX.setMuted(true);
+    setTimeout(() => SFX.setMuted(false), 100);
+    SFX.playError();
+    function dismiss(e) {
+        b.remove();
+        document.removeEventListener("keydown", dismiss);
+        document.removeEventListener("mousedown", dismiss);
+    }
+    setTimeout(() => {
+        document.addEventListener("keydown", dismiss);
+        document.addEventListener("mousedown", dismiss);
+    }, 400);
+}
+document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.altKey && (e.key === "Delete" || e.key === "Del")) {
+        e.preventDefault();
+        showBSOD();
+    }
+});
 
 const ICONS = [
 { id: "mycomputer", icon: "🖥️", label: "My Computer", action: () => openWindow("mycomputer", "My Computer", "🖥️", renderMyComputer) },
@@ -246,6 +441,73 @@ function openDisplayProperties() {
         });
     });
 }
+
+// ---------- Window management helpers (taskbar right-click) ----------
+function visibleWindows() {
+    return Object.entries(openWindows).filter(([id, w]) => !w.minimized).map(([id, w]) => ({ id, w }));
+}
+function cascadeWindows() {
+    const wins = visibleWindows();
+    if (!wins.length) return;
+    wins.forEach((entry, i) => {
+        const w = entry.w.el;
+        w.style.width = "420px";
+        w.style.height = "280px";
+        w.style.left = (20 + i * 28) + "px";
+        w.style.top = (10 + i * 24) + "px";
+        clampWindowToViewport(w);
+        focusWindow(entry.id);
+    });
+}
+function tileWindows(axis) {
+    const wins = visibleWindows();
+    if (!wins.length) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight - 28;
+    if (axis === "h") {
+        const each = Math.floor(vh / wins.length);
+        wins.forEach((entry, i) => {
+            const w = entry.w.el;
+            w.style.left = "0px";
+            w.style.top = (i * each) + "px";
+            w.style.width = vw + "px";
+            w.style.height = each + "px";
+            focusWindow(entry.id);
+        });
+    } else {
+        const each = Math.floor(vw / wins.length);
+        wins.forEach((entry, i) => {
+            const w = entry.w.el;
+            w.style.left = (i * each) + "px";
+            w.style.top = "0px";
+            w.style.width = each + "px";
+            w.style.height = vh + "px";
+            focusWindow(entry.id);
+        });
+    }
+}
+function minimizeAllWindows() {
+    for (const id in openWindows) minimizeWindow(id);
+}
+(function () {
+    const tb = document.getElementById("taskbar");
+    if (!tb) return;
+    tb.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const hasOpen = visibleWindows().length > 0;
+        showContextMenu(e.clientX, e.clientY, [
+            { label: "Cascade Windows", disabled: !hasOpen, action: cascadeWindows },
+            { label: "Tile Horizontally", disabled: !hasOpen, action: () => tileWindows("h") },
+            { label: "Tile Vertically", disabled: !hasOpen, action: () => tileWindows("v") },
+            { separator: true },
+            { label: "Minimize All Windows", disabled: !hasOpen, action: minimizeAllWindows },
+            { separator: true },
+            { label: "Properties", action: openDisplayProperties }
+        ]);
+    });
+})();
+
 function openWindow(id, title, icon, contentRenderer) {
 if (openWindows[id]) {
 focusWindow(id);
@@ -910,158 +1172,198 @@ el.innerHTML = `
 `;
 }
 function renderMinesweeper(el) {
-el.parentElement.style.width = "auto";
-el.parentElement.style.height = "auto";
-const SIZE = 9;
-const MINES = 10;
+let ROWS = 9, COLS = 9, MINES = 10, CELL = 18;
+let difficulty = localStorage.getItem("win98_ms_diff") || "beginner";
+const LEVELS = {
+    beginner: { rows: 9, cols: 9, mines: 10, cell: 18 },
+    intermediate: { rows: 16, cols: 16, mines: 40, cell: 18 },
+    expert: { rows: 16, cols: 30, mines: 99, cell: 16 }
+};
+function applyDifficulty() {
+    const L = LEVELS[difficulty] || LEVELS.beginner;
+    ROWS = L.rows; COLS = L.cols; MINES = L.mines; CELL = L.cell;
+    const gridW = COLS * CELL + 8;
+    el.parentElement.style.width = Math.min(gridW, window.innerWidth) + "px";
+    el.parentElement.style.height = "auto";
+}
 let grid = [];
 let revealed = [];
 let flagged = [];
 let gameOver = false;
 let mineCount = MINES;
 let firstClick = true;
+let activeTimer = null;
+applyDifficulty();
 function init() {
-grid = [];
-revealed = [];
-flagged = [];
-gameOver = false;
-mineCount = MINES;
-firstClick = true;
-for (let r = 0; r < SIZE; r++) {
-grid.push(new Array(SIZE).fill(0));
-revealed.push(new Array(SIZE).fill(false));
-flagged.push(new Array(SIZE).fill(false));
-}
+    grid = [];
+    revealed = [];
+    flagged = [];
+    gameOver = false;
+    mineCount = MINES;
+    firstClick = true;
+    for (let r = 0; r < ROWS; r++) {
+        grid.push(new Array(COLS).fill(0));
+        revealed.push(new Array(COLS).fill(false));
+        flagged.push(new Array(COLS).fill(false));
+    }
 }
 function placeMines(excludeR, excludeC) {
-let placed = 0;
-while (placed < MINES) {
-const r = Math.floor(Math.random() * SIZE);
-const c = Math.floor(Math.random() * SIZE);
-if (grid[r][c] === -1) continue;
-if (Math.abs(r - excludeR) <= 1 && Math.abs(c - excludeC) <= 1) continue;
-grid[r][c] = -1;
-placed++;
-}
-for (let r = 0; r < SIZE; r++) {
-for (let c = 0; c < SIZE; c++) {
-if (grid[r][c] === -1) continue;
-let count = 0;
-for (let dr = -1; dr <= 1; dr++) {
-for (let dc = -1; dc <= 1; dc++) {
-const nr = r + dr, nc = c + dc;
-if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && grid[nr][nc] === -1) count++;
-}
-}
-grid[r][c] = count;
-}
-}
+    let placed = 0;
+    while (placed < MINES) {
+        const r = Math.floor(Math.random() * ROWS);
+        const c = Math.floor(Math.random() * COLS);
+        if (grid[r][c] === -1) continue;
+        if (Math.abs(r - excludeR) <= 1 && Math.abs(c - excludeC) <= 1) continue;
+        grid[r][c] = -1;
+        placed++;
+    }
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (grid[r][c] === -1) continue;
+            let count = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] === -1) count++;
+                }
+            }
+            grid[r][c] = count;
+        }
+    }
 }
 function reveal(r, c) {
-if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) return;
-if (revealed[r][c] || flagged[r][c]) return;
-revealed[r][c] = true;
-if (grid[r][c] === 0) {
-for (let dr = -1; dr <= 1; dr++) {
-for (let dc = -1; dc <= 1; dc++) {
-reveal(r + dr, c + dc);
-}
-}
-}
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+    if (revealed[r][c] || flagged[r][c]) return;
+    revealed[r][c] = true;
+    if (grid[r][c] === 0) {
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                reveal(r + dr, c + dc);
+            }
+        }
+    }
 }
 function checkWin() {
-for (let r = 0; r < SIZE; r++) {
-for (let c = 0; c < SIZE; c++) {
-if (grid[r][c] !== -1 && !revealed[r][c]) return false;
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (grid[r][c] !== -1 && !revealed[r][c]) return false;
+        }
+    }
+    return true;
 }
-}
-return true;
+const menuBar = createMenuBar([
+    { label: "Game", menu: [
+        { label: "New", shortcut: "F2", action: () => { if (activeTimer) clearInterval(activeTimer); init(); render(); } },
+        { separator: true },
+        { label: "Beginner", checked: () => difficulty === "beginner", action: () => setDifficulty("beginner") },
+        { label: "Intermediate", checked: () => difficulty === "intermediate", action: () => setDifficulty("intermediate") },
+        { label: "Expert", checked: () => difficulty === "expert", action: () => setDifficulty("expert") },
+        { separator: true },
+        { label: "Exit", action: () => el.closest(".window").querySelector(".window-btn.close").click() }
+    ]},
+    { label: "Help", menu: [
+        { label: "How to Play", action: () => alert("Minesweeper\r\n\r\nLeft-click to reveal a square.\r\nRight-click to place a flag.\r\nNumbers show how many mines touch that square.\r\nReveal all safe squares to win.") }
+    ]}
+]);
+function setDifficulty(d) {
+    difficulty = d;
+    localStorage.setItem("win98_ms_diff", d);
+    applyDifficulty();
+    init();
+    render();
 }
 function render() {
-el.innerHTML = `
-<div class="ms-info">
-<div class="ms-display" id="ms-mines">${mineCount.toString().padStart(3, "0")}</div>
-<button class="btn-98" style="font-size:16px;" id="ms-reset">🙂</button>
-<div class="ms-display" id="ms-time">000</div>
-</div>
-<div class="ms-grid" style="grid-template-columns:repeat(${SIZE},18px);"></div>
-`;
-const gridEl = el.querySelector(".ms-grid");
-const resetBtn = el.querySelector("#ms-reset");
-const minesDisplay = el.querySelector("#ms-mines");
-const timeDisplay = el.querySelector("#ms-time");
-let startTime = null;
-let timerInterval = null;
-function updateTime() {
-if (!startTime) return;
-const elapsed = Math.min(999, Math.floor((Date.now() - startTime) / 1000));
-timeDisplay.textContent = elapsed.toString().padStart(3, "0");
-}
-for (let r = 0; r < SIZE; r++) {
-for (let c = 0; c < SIZE; c++) {
-const cell = document.createElement("div");
-cell.className = "ms-cell";
-cell.dataset.r = r;
-cell.dataset.c = c;
-if (revealed[r][c]) {
-cell.classList.add("revealed");
-if (grid[r][c] === -1) {
-cell.classList.add("mine");
-cell.textContent = "💣";
-} else if (grid[r][c] > 0) {
-cell.textContent = grid[r][c];
-const colors = ["", "#0000ff", "#008000", "#ff0000", "#000080", "#800000", "#008080", "#000000", "#808080"];
-cell.style.color = colors[grid[r][c]];
-}
-} else if (flagged[r][c]) {
-cell.textContent = "🚩";
-}
-cell.addEventListener("click", () => {
-if (gameOver) return;
-if (flagged[r][c]) return;
-if (revealed[r][c]) return;
-if (firstClick) {
-placeMines(r, c);
-firstClick = false;
-startTime = Date.now();
-timerInterval = setInterval(updateTime, 100);
-}
-if (grid[r][c] === -1) {
-gameOver = true;
-clearInterval(timerInterval);
-for (let i = 0; i < SIZE; i++) {
-for (let j = 0; j < SIZE; j++) {
-if (grid[i][j] === -1) revealed[i][j] = true;
-}
-}
-resetBtn.textContent = "😵";
-render();
-} else {
-reveal(r, c);
-if (checkWin()) {
-gameOver = true;
-clearInterval(timerInterval);
-resetBtn.textContent = "😎";
-alert("You win! 🎉");
-}
-render();
-}
-});
-cell.addEventListener("contextmenu", (e) => {
-e.preventDefault();
-if (gameOver || revealed[r][c]) return;
-flagged[r][c] = !flagged[r][c];
-mineCount += flagged[r][c] ? -1 : 1;
-render();
-});
-gridEl.appendChild(cell);
-}
-}
-resetBtn.addEventListener("click", () => {
-if (timerInterval) clearInterval(timerInterval);
-init();
-render();
-});
+    el.innerHTML = "";
+    el.style.display = "flex";
+    el.style.flexDirection = "column";
+    el.appendChild(menuBar);
+    const board = document.createElement("div");
+    board.className = "ms-board";
+    board.innerHTML = `
+    <div class="ms-info">
+    <div class="ms-display">${mineCount.toString().padStart(3, "0")}</div>
+    <button class="btn-98" style="font-size:16px;" id="ms-reset">🙂</button>
+    <div class="ms-display">000</div>
+    </div>
+    <div class="ms-grid" style="grid-template-columns:repeat(${COLS},${CELL}px);"></div>
+    `;
+    const gridEl = board.querySelector(".ms-grid");
+    const resetBtn = board.querySelector("#ms-reset");
+    const timeDisplay = board.querySelectorAll(".ms-display")[1];
+    let startTime = null;
+    if (activeTimer) clearInterval(activeTimer);
+    function updateTime() {
+        if (!startTime) return;
+        const elapsed = Math.min(999, Math.floor((Date.now() - startTime) / 1000));
+        timeDisplay.textContent = elapsed.toString().padStart(3, "0");
+    }
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const cell = document.createElement("div");
+            cell.className = "ms-cell";
+            cell.dataset.r = r;
+            cell.dataset.c = c;
+            if (revealed[r][c]) {
+                cell.classList.add("revealed");
+                if (grid[r][c] === -1) {
+                    cell.classList.add("mine");
+                    cell.textContent = "💣";
+                } else if (grid[r][c] > 0) {
+                    cell.textContent = grid[r][c];
+                    const colors = ["", "#0000ff", "#008000", "#ff0000", "#000080", "#800000", "#008080", "#000000", "#808080"];
+                    cell.style.color = colors[grid[r][c]];
+                }
+            } else if (flagged[r][c]) {
+                cell.textContent = "🚩";
+            }
+            cell.addEventListener("click", () => {
+                if (gameOver) return;
+                if (flagged[r][c]) return;
+                if (revealed[r][c]) return;
+                if (firstClick) {
+                    placeMines(r, c);
+                    firstClick = false;
+                    startTime = Date.now();
+                    activeTimer = setInterval(updateTime, 100);
+                }
+                if (grid[r][c] === -1) {
+                    gameOver = true;
+                    clearInterval(activeTimer);
+                    for (let i = 0; i < ROWS; i++) {
+                        for (let j = 0; j < COLS; j++) {
+                            if (grid[i][j] === -1) revealed[i][j] = true;
+                        }
+                    }
+                    resetBtn.textContent = "😵";
+                    render();
+                } else {
+                    reveal(r, c);
+                    if (checkWin()) {
+                        gameOver = true;
+                        clearInterval(activeTimer);
+                        resetBtn.textContent = "😎";
+                        SFX.playNotify();
+                        setTimeout(() => alert("You win! 🎉"), 50);
+                    }
+                    render();
+                }
+            });
+            cell.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                if (gameOver || revealed[r][c]) return;
+                flagged[r][c] = !flagged[r][c];
+                mineCount += flagged[r][c] ? -1 : 1;
+                render();
+            });
+            gridEl.appendChild(cell);
+        }
+    }
+    resetBtn.addEventListener("click", () => {
+        if (activeTimer) clearInterval(activeTimer);
+        init();
+        render();
+    });
+    el.appendChild(board);
 }
 init();
 render();

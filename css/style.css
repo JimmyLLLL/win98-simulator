@@ -73,3 +73,27 @@
 
 /* ===== Tray volume ===== */
 #tray-volume{user-select:none}
+
+/* ===== Screensaver ===== */
+#screensaver{position:fixed;inset:0;background:#000;z-index:99998;cursor:none}
+#screensaver canvas{display:block;width:100%;height:100%}
+.ss-hint{position:fixed;bottom:24px;left:0;right:0;text-align:center;color:#5a6a8a;font-family:Tahoma,sans-serif;font-size:12px;letter-spacing:1px;opacity:.5;pointer-events:none}
+
+/* ===== BSOD ===== */
+#bsod{position:fixed;inset:0;background:#0000aa;z-index:99999;color:#c0c0c0;font-family:"Courier New",monospace;font-size:14px;padding:8% 14%;line-height:1.6;cursor:pointer;overflow:auto}
+.bsod-body{max-width:680px}
+.bsod-title{background:#c0c0c0;color:#0000aa;display:inline-block;padding:0 14px;font-weight:bold;margin-bottom:16px;font-size:16px}
+#bsod p{margin:0 0 12px}
+.bsod-continue{margin-top:24px}
+
+/* ===== Minesweeper board ===== */
+.ms-board{padding:4px}
+
+/* ===== Date/Time Properties ===== */
+.dtp-cal{width:140px}
+.dtp-dow{font-size:10px;letter-spacing:3px;text-align:center;color:#000;margin-bottom:2px;font-weight:bold}
+.dtp-grid{display:grid;grid-template-columns:repeat(7,18px);gap:1px;text-align:center}
+.dtp-day{width:18px;height:16px;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:default}
+.dtp-day.today{background:#0000aa;color:#fff;font-weight:bold}
+.dtp-month,.dtp-year{border:2px solid;border-color:var(--darker) var(--lighter) var(--lighter) var(--darker)}
+
